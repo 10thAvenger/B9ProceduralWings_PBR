@@ -4,3 +4,10 @@ obj/
 *.user
 *.suo
 *.cache
+
+*.dds
+*.mu
+*.dll
+
+Assets/
+Plugins/

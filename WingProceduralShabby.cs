@@ -51,7 +51,7 @@ namespace B9PW_Technicolor
         [KSPField(isPersistant = false)]
         public string defaultUpDownVariant = "TilesBottom";
 
-        [KSPField(isPersistant = true)]//, guiActive = false, guiActiveEditor = false, guiName = "Material", guiFormat = "F3")]
+        [KSPField(isPersistant = true)]
         public bool surface1_is_up = true;
 
         public int surfaceUpDownMode = 0;   // 0:Base - 1:TilesBottom - 2:TilesTop - 3:Tiles
@@ -1368,10 +1368,6 @@ namespace B9PW_Technicolor
             moduleWasJustBorn = false;                      // Maybe move to later stages of module cycle
             // ===================================
 
-            if (ApplyLegacyTextures())
-            {
-                UpdateMaterials();
-            }
             UpdateGeometry(true);
             UpdateWindow();
         }
@@ -1574,7 +1570,7 @@ namespace B9PW_Technicolor
                             if (vp[i].x < -0.1f)
                             {
                                 vp[i] = new Vector3(-geometricLength, vp[i].y * wingThicknessDeviationTip, vp[i].z * wingEdgeWidthTrailingTipDeviation + geometricWidthTip / 2f + geometricOffsetTip); // Tip edge
-                                if (nm[i].x == 0f)
+                                if (Math.Abs(nm[i].x) < 1e-3f)
                                 {
                                     uv[i] = new Vector2(geometricLength, uv[i].y);
                                 }
@@ -1584,7 +1580,7 @@ namespace B9PW_Technicolor
                                 vp[i] = new Vector3(0f, vp[i].y * wingThicknessDeviationRoot, vp[i].z * wingEdgeWidthTrailingRootDeviation + geometricWidthRoot / 2f + wingWidthRootBasedOffset); // Root edge
                             }
 
-                            if (nm[i].x == 0f && sharedEdgeTypeTrailing != 1)
+                            if (Math.Abs(nm[i].x) < 1e-3f && sharedEdgeTypeTrailing != 1)
                             {
                                 // cl[i] = GetVertexColor(2);
                                 uv2[i] = GetVertexUV2(sharedMaterialET);
@@ -1632,7 +1628,7 @@ namespace B9PW_Technicolor
                             if (vp[i].x < -0.1f)
                             {
                                 vp[i] = new Vector3(-geometricLength, vp[i].y * wingThicknessDeviationTip, vp[i].z * wingEdgeWidthLeadingTipDeviation + geometricWidthTip / 2f - geometricOffsetTip); // Tip edge
-                                if (nm[i].x == 0f)
+                                if (Math.Abs(nm[i].x) < 1e-3f)
                                 {
                                     uv[i] = new Vector2(geometricLength, uv[i].y);
                                 }
@@ -1642,7 +1638,7 @@ namespace B9PW_Technicolor
                                 vp[i] = new Vector3(0f, vp[i].y * wingThicknessDeviationRoot, vp[i].z * wingEdgeWidthLeadingRootDeviation + geometricWidthRoot / 2f - wingWidthRootBasedOffset); // Root edge
                             }
 
-                            if (nm[i].x == 0f && sharedEdgeTypeLeading != 1)
+                            if (Math.Abs(nm[i].x) < 1e-3f && sharedEdgeTypeLeading != 1)
                             {
                                 // cl[i] = GetVertexColor(3);
                                 uv2[i] = GetVertexUV2(sharedMaterialEL);
@@ -2491,144 +2487,6 @@ namespace B9PW_Technicolor
         }
 
         #endregion Mesh Setup and Checking
-
-        #region Materials
-
-        public static Material materialLayeredSurface;
-        public static Texture materialLayeredSurfaceTextureMain;
-        public static Texture materialLayeredSurfaceTextureMask;
-
-        public static Material materialLayeredEdge;
-        public static Texture materialLayeredEdgeTextureMain;
-        public static Texture materialLayeredEdgeTextureMask;
-
-        private readonly float materialPropertyShininess = 0.4f;
-        private Color materialPropertySpecular = new Color(0.62109375f, 0.62109375f, 0.62109375f, 1.0f);
-
-        public void UpdateMaterials()
-        {
-            //if (materialLayeredSurface == null || materialLayeredEdge == null)
-            //{
-            //    SetMaterialReferences();
-            //}
-
-            //if (materialLayeredSurface != null)
-            //{
-            //    if (!isCtrlSrf)
-            //    {
-            //        SetMaterial(meshFilterWingSurface, materialLayeredSurface);
-            //        for (int i = 0; i < meshTypeCountEdgeWing; ++i)
-            //        {
-            //            SetMaterial(meshFiltersWingEdgeTrailing[i], materialLayeredEdge);
-            //            SetMaterial(meshFiltersWingEdgeLeading[i], materialLayeredEdge);
-            //        }
-            //    }
-            //    else
-            //    {
-            //        SetMaterial(meshFilterCtrlSurface, materialLayeredSurface);
-            //        SetMaterial(meshFilterCtrlFrame, materialLayeredEdge);
-            //        for (int i = 0; i < meshTypeCountEdgeCtrl; ++i)
-            //        {
-            //            SetMaterial(meshFiltersCtrlEdge[i], materialLayeredEdge);
-            //        }
-            //    }
-            //}
-            //else if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateMaterials)
-            //{
-            //    DebugLogWithID("UpdateMaterials", "Material creation failed");
-            //}
-        }
-
-        //private void SetMaterialReferences()
-        //{
-        //    if (materialLayeredSurface == null)
-        //    {
-        //        materialLayeredSurface = new Material(StaticWingGlobals.wingShader);
-        //    }
-
-        //    if (materialLayeredEdge == null)
-        //    {
-        //        materialLayeredEdge = new Material(StaticWingGlobals.wingShader);
-        //    }
-
-        //    if (!isCtrlSrf)
-        //    {
-        //        SetTextures(meshFilterWingSurface, meshFiltersWingEdgeTrailing[0]);
-        //    }
-        //    else
-        //    {
-        //        SetTextures(meshFilterCtrlSurface, meshFilterCtrlFrame);
-        //    }
-
-        //    if (materialLayeredSurfaceTextureMain != null && materialLayeredSurfaceTextureMask != null)
-        //    {
-        //        materialLayeredSurface.SetTexture("_MainTex", materialLayeredSurfaceTextureMain);
-        //        materialLayeredSurface.SetTexture("_Emissive", materialLayeredSurfaceTextureMask);
-        //        materialLayeredSurface.SetFloat("_Shininess", materialPropertyShininess);
-        //        materialLayeredSurface.SetColor("_SpecColor", materialPropertySpecular);
-        //    }
-        //    else if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateMaterials)
-        //    {
-        //        DebugLogWithID("SetMaterialReferences", "Surface textures not found");
-        //    }
-
-        //    if (materialLayeredEdgeTextureMain != null && materialLayeredEdgeTextureMask != null)
-        //    {
-        //        materialLayeredEdge.SetTexture("_MainTex", materialLayeredEdgeTextureMain);
-        //        materialLayeredEdge.SetTexture("_Emissive", materialLayeredEdgeTextureMask);
-        //        materialLayeredEdge.SetFloat("_Shininess", materialPropertyShininess);
-        //        materialLayeredEdge.SetColor("_SpecColor", materialPropertySpecular);
-        //    }
-        //    else if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateMaterials)
-        //    {
-        //        DebugLogWithID("SetMaterialReferences", "Edge textures not found");
-        //    }
-        //}
-
-        private void SetMaterial(MeshFilter target, Material material)
-        {
-            if (target != null)
-            {
-                Renderer r = target.gameObject.GetComponent<Renderer>();
-                if (r != null)
-                {
-                    r.sharedMaterial = material;
-                }
-            }
-        }
-
-        private void SetTextures(MeshFilter sourceSurface, MeshFilter sourceEdge)
-        {
-            if (sourceSurface != null)
-            {
-                Renderer r = sourceSurface.gameObject.GetComponent<Renderer>();
-                if (r != null)
-                {
-                    materialLayeredSurfaceTextureMain = r.sharedMaterial.GetTexture("_MainTex");
-                    materialLayeredSurfaceTextureMask = r.sharedMaterial.GetTexture("_Emissive");
-                    if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateMaterials)
-                    {
-                        DebugLogWithID("SetTextures", "Main: " + materialLayeredSurfaceTextureMain.ToString() + " | Mask: " + materialLayeredSurfaceTextureMask);
-                    }
-                }
-            }
-
-            if (sourceEdge != null)
-            {
-                Renderer r = sourceEdge.gameObject.GetComponent<Renderer>();
-                if (r != null)
-                {
-                    materialLayeredEdgeTextureMain = r.sharedMaterial.GetTexture("_MainTex");
-                    materialLayeredEdgeTextureMask = r.sharedMaterial.GetTexture("_Emissive");
-                    if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateMaterials)
-                    {
-                        DebugLogWithID("SetTextures", "Main: " + materialLayeredEdgeTextureMain.ToString() + " | Mask: " + materialLayeredEdgeTextureMask);
-                    }
-                }
-            }
-        }
-
-        #endregion Materials
 
         #region Aero
 

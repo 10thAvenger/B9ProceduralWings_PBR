@@ -44,7 +44,7 @@
     </Reference>
     <Reference Include="FerramAerospaceResearch, Version=0.16.0.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\FerramAerospaceResearch.dll</HintPath>
+      <HintPath>..\z_plugins\FerramAerospaceResearch.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
