@@ -14,14 +14,14 @@ Note **RestockPBR is not actually a dependency** --the framework is powered by T
 - Tiled top and/or bottom variants for all B9-PW wings. [**Not in the B9-PW UI. right-click the part to switch variants**].
 - Ability to recolor all of the above with the swatches included in Technicolor and in expansions such as
   [this](https://forum.kerbalspaceprogram.com/topic/231293-112x-technicolor-swatch-extensions-2026-07-07/).
-- Backward and forward compatibility with "stock" B9-PW --you can try the mod, uninstall it, and your B9-PW parts will look exactly as they looked initially (even if an intermediate game save was made).
+- Backward and forward compatibility with "stock" B9-PW: your coloring/material choices for B9-PW wings are still saved if you later decide to uninstall the mod.
 
 ### [Some screenshots](https://imgur.com/a/b9proceduralwings-pbr-UwtVBaH) (using RestockPBR)
 
 ## Dependencies:
 - [B9 Procedural Wings Fork](https://forum.kerbalspaceprogram.com/topic/203629-112-b9-procedural-wings-fork-modified/)
 - Resurfaced, Technicolor and Shabby (the versions bundled with
-  [RestockPBR 0.0.6](https://github.com/PorktoberRevolution/ReStockPBR/releases/tag/0.0.6)).
+  [RestockPBR 0.0.6](https://github.com/PorktoberRevolution/ReStockPBR/releases/tag/0.0.6), but no need for the RestockPBR folder that actually patches parts).
 - [Deferred Rendering](https://github.com/LGhassen/Deferred/releases)
 - ModuleManager
 
@@ -32,16 +32,7 @@ When in-game, one can simply active/deactivate them.
 
 **Credit of the models and code goes to all contributors to the B9ProceduralWings-Fork mod, which is currently mantained by linuxgurugamer.**
 
-### *B9ProceduralWings_PBR is Distributed under MIT License*
+### *B9ProceduralWings_PBR is distributed under MIT License*
 <br>
 
-*This mod was created without the use of any AI-generated textures and assets in general, code, or text of any kind.*
-
-
-
-
-
-
-
- 
-
+*This mod was created without the use of any AI-generated code, text, textures or assets in general.*
