@@ -5,9 +5,9 @@ obj/
 *.suo
 *.cache
 
+Assets/
+Plugins/
 *.dds
 *.mu
 *.dll
-
-Assets/
-Plugins/
+.craft

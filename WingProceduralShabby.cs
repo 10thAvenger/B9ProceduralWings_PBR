@@ -54,6 +54,7 @@ namespace B9PW_Technicolor
         [KSPField(isPersistant = true)]
         public bool surface1_is_up = true;
 
+        ModulePartVariants modulePartVariantsSurfUpDown;
         public int surfaceUpDownMode = 0;   // 0:Base - 1:TilesBottom - 2:TilesTop - 3:Tiles
         public int surfaceUpDownModeCached = 0;
 
@@ -863,7 +864,6 @@ namespace B9PW_Technicolor
         #region Unity stuff and Callbacks/events
 
         public bool isStarted = false;
-        ModulePartVariants modulePartVariantsSurfUpDown;
 
         // For B9PW_PBR - Change moduleName just before loading from save file. Change back to normal in OnLoad()
         public override void OnAwake()
@@ -872,7 +872,8 @@ namespace B9PW_Technicolor
         }
 
         /// <summary>
-        /// run when part is created in editor, and when part is created in flight. Why is OnStart and Start both being used other than to sparate flight and editor startup?
+        /// run when part is created in editor, and when part is created in flight. 
+        /// Why is OnStart and Start both being used other than to sparate flight and editor startup?
         /// </summary>
         public override void OnStart(PartModule.StartState state)
         {
@@ -1156,7 +1157,7 @@ namespace B9PW_Technicolor
         
         public void Update()
         {
-            if (!HighLogic.LoadedSceneIsEditor || !isStarted)
+            if (!HighLogic.LoadedSceneIsEditor || !isStarted)   // Only continue if in editor AND already started
             {
                 return;
             }
@@ -1166,7 +1167,7 @@ namespace B9PW_Technicolor
 
             DeformWing();
             CheckAllFieldValues(out bool updateGeo, out bool updateAero);
-            updateGeo |= CheckSurfaceUpDownMode();   // Can only alter surfaceUpDownMode when in editor (RHS is always executed: | rather than ||) - for B9PW_PBR
+            updateGeo |= CheckSurfaceUpDownMode();   // RHS is always executed, |= uses | rather than || - for B9PW_PBR
 
             if (part.GetInstanceID() == uiInstanceIDTarget)
                 UpdateHandleGizmos();
@@ -1310,6 +1311,7 @@ namespace B9PW_Technicolor
                 CtrlSrfWingSynchronizer.AddSynchronizer(ctrlSrfWingRoot, connectedCtrlSrfWings);
             }
         }
+
         public void OnSceneSwitch(GameScenes scene)
         {
             isStarted = false; // fixes annoying nullrefs when switching scenes and things haven't been destroyed yet
@@ -1326,11 +1328,10 @@ namespace B9PW_Technicolor
 
             // ========== for B9PW_PBR ==========
             modulePartVariantsSurfUpDown = GetSurfVariantsModule();
-            if (moduleWasJustBorn)
+            if (moduleWasJustBorn) // Takes care of a "baseVariant" option not being acknowledged when a ModulePVariants is added to part via MM
             {
                 // Invoke on first load after WingProcedural is replaced by WPShabby
                 modulePartVariantsSurfUpDown.SetVariant(defaultUpDownVariant);
-                //Debug.Log("[B9PW_PBR] Part variant was set to " + defaultUpDownVariant + ", as module was just born");
             }
             // ===================================
 
@@ -1364,8 +1365,8 @@ namespace B9PW_Technicolor
 
             // ========== for B9PW_PBR ==========
             bool variantChanged = CheckSurfaceUpDownMode();
-            if (moduleWasJustBorn) DetermineUpSurface();    // Invoke on first load after WingProcedural is replaced by WPShabby
-            moduleWasJustBorn = false;                      // Maybe move to later stages of module cycle
+            if (moduleWasJustBorn) DetermineUpSurface();    // Invoke on first load after WingProcedural is replaced by WingProceduralShabby
+            moduleWasJustBorn = false;                      // Colud be moved to later stages of module cycle
             // ===================================
 
             UpdateGeometry(true);
@@ -1556,8 +1557,6 @@ namespace B9PW_Technicolor
                         Array.Copy(meshReference.nm, nm, length);
                         Vector2[] uv = new Vector2[length];
                         Array.Copy(meshReference.uv, uv, length);
-                        // Color[] cl = new Color[length];
-                        Vector2[] uv2 = new Vector2[length];
 
 
                         if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateGeometry)
@@ -1579,18 +1578,10 @@ namespace B9PW_Technicolor
                             {
                                 vp[i] = new Vector3(0f, vp[i].y * wingThicknessDeviationRoot, vp[i].z * wingEdgeWidthTrailingRootDeviation + geometricWidthRoot / 2f + wingWidthRootBasedOffset); // Root edge
                             }
-
-                            if (Math.Abs(nm[i].x) < 1e-3f && sharedEdgeTypeTrailing != 1)
-                            {
-                                // cl[i] = GetVertexColor(2);
-                                uv2[i] = GetVertexUV2(sharedMaterialET);
-                            }
                         }
 
                         meshFiltersWingEdgeTrailing[j].mesh.vertices = vp;
                         meshFiltersWingEdgeTrailing[j].mesh.uv = uv;
-                        meshFiltersWingEdgeTrailing[j].mesh.uv2 = uv2;
-                        // meshFiltersWingEdgeTrailing[j].mesh.colors = cl;
                         meshFiltersWingEdgeTrailing[j].mesh.RecalculateBounds();
                     }
                 }
@@ -1615,8 +1606,6 @@ namespace B9PW_Technicolor
                         Array.Copy(meshReference.nm, nm, length);
                         Vector2[] uv = new Vector2[length];
                         Array.Copy(meshReference.uv, uv, length);
-                        // Color[] cl = new Color[length];
-                        Vector2[] uv2 = new Vector2[length];
 
                         if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateGeometry)
                         {
@@ -1637,18 +1626,10 @@ namespace B9PW_Technicolor
                             {
                                 vp[i] = new Vector3(0f, vp[i].y * wingThicknessDeviationRoot, vp[i].z * wingEdgeWidthLeadingRootDeviation + geometricWidthRoot / 2f - wingWidthRootBasedOffset); // Root edge
                             }
-
-                            if (Math.Abs(nm[i].x) < 1e-3f && sharedEdgeTypeLeading != 1)
-                            {
-                                // cl[i] = GetVertexColor(3);
-                                uv2[i] = GetVertexUV2(sharedMaterialEL);
-                            }
                         }
 
                         meshFiltersWingEdgeLeading[j].mesh.vertices = vp;
                         meshFiltersWingEdgeLeading[j].mesh.uv = uv;
-                        meshFiltersWingEdgeLeading[j].mesh.uv2 = uv2;
-                        // meshFiltersWingEdgeLeading[j].mesh.colors = cl;
                         meshFiltersWingEdgeLeading[j].mesh.RecalculateBounds();
                         if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateGeometry)
                         {
@@ -1689,8 +1670,6 @@ namespace B9PW_Technicolor
                     Array.Copy(meshReferenceCtrlFrame.nm, nm, length);
                     Vector2[] uv = new Vector2[length];
                     Array.Copy(meshReferenceCtrlFrame.uv, uv, length);
-                    // Color[] cl = new Color[length];
-                    Vector2[] uv2 = new Vector2[length];
 
                     if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateGeometry)
                     {
@@ -1756,16 +1735,10 @@ namespace B9PW_Technicolor
                                 uv[i] = new Vector2(uv[i].x - (vp[i].y * ctrlOffsetRootClamped) / 4f, uv[i].y);
                             }
                         }
-
-                        // Just blanks
-                        // cl[i] = new Color(0f, 0f, 0f, 0f);
-                        uv2[i] = Vector2.zero;
                     }
 
                     meshFilterCtrlFrame.mesh.vertices = vp;
                     meshFilterCtrlFrame.mesh.uv = uv;
-                    meshFilterCtrlFrame.mesh.uv2 = uv2;
-                    //meshFilterCtrlFrame.mesh.colors = cl;
                     meshFilterCtrlFrame.mesh.RecalculateBounds();
 
                     MeshCollider meshCollider = meshFilterCtrlFrame.gameObject.GetComponent<MeshCollider>();
@@ -1809,8 +1782,6 @@ namespace B9PW_Technicolor
                         Array.Copy(meshReference.nm, nm, length);
                         Vector2[] uv = new Vector2[length];
                         Array.Copy(meshReference.uv, uv, length);
-                        // Color[] cl = new Color[length];
-                        Vector2[] uv2 = new Vector2[length];
 
                         if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateGeometry)
                         {
@@ -1866,17 +1837,11 @@ namespace B9PW_Technicolor
                             if (nm[i] != new Vector3(0f, 1f, 0f) && nm[i] != new Vector3(0f, 0f, 1f) && nm[i] != new Vector3(0f, 0f, -1f) && uv[i].y < 0.3f)
                             {
                                 uv[i] = vp[i].z < 0f ? new Vector2(vp[i].z, uv[i].y) : new Vector2(vp[i].z, uv[i].y);
-
-                                // Color has to be applied there to avoid blanking out cross sections
-                                // cl[i] = GetVertexColor(2);
-                                uv2[i] = GetVertexUV2(sharedMaterialET);
                             }
                         }
 
                         meshFiltersCtrlEdge[j].mesh.vertices = vp;
                         meshFiltersCtrlEdge[j].mesh.uv = uv;
-                        meshFiltersCtrlEdge[j].mesh.uv2 = uv2;
-                        //meshFiltersCtrlEdge[j].mesh.colors = cl;
                         meshFiltersCtrlEdge[j].mesh.RecalculateBounds();
                         if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateGeometry)
                         {
@@ -1951,8 +1916,6 @@ namespace B9PW_Technicolor
                 Array.Copy(meshReference.vp, vp, length);
                 Vector2[] uv = new Vector2[length];
                 Array.Copy(meshReference.uv, uv, length);
-                // Color[] cl = new Color[length];
-                Vector2[] uv2 = new Vector2[length];
 
                 if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateGeometry)
                 {
@@ -1988,24 +1951,10 @@ namespace B9PW_Technicolor
                             uv[i] = new Vector2(0f, 0f + 0.5f - (+wingWidthRootBasedOffset * 2f + geometricWidthRoot) / 8f);
                         }
                     }
-
-                    // Top/bottom filtering
-                    if (vp[i].y > 0f ^ isMirrored)
-                    {
-                        // cl[i] = GetVertexColor(0);
-                        uv2[i] = GetVertexUV2(sharedMaterialST);
-                    }
-                    else
-                    {
-                        // cl[i] = GetVertexColor(1);
-                        uv2[i] = GetVertexUV2(sharedMaterialSB);
-                    }
                 }
 
                 meshFilter.mesh.vertices = vp;
                 meshFilter.mesh.uv = uv;
-                meshFilter.mesh.uv2 = uv2;
-                // meshFilter.mesh.colors = cl;
                 meshFilter.mesh.RecalculateBounds();
 
                 if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateGeometry)
@@ -2029,8 +1978,6 @@ namespace B9PW_Technicolor
                 Array.Copy(meshReference.vp, vp, length);
                 Vector2[] uv = new Vector2[length];
                 Array.Copy(meshReference.uv, uv, length);
-                // Color[] cl = new Color[length];
-                Vector2[] uv2 = new Vector2[length];
 
                 if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateGeometry)
                 {
@@ -2081,23 +2028,9 @@ namespace B9PW_Technicolor
                         vp[i] = new Vector3(vp[i].x * ctrlThicknessDeviationRoot, vp[i].y, vp[i].z + vp[i].y * ctrlOffsetRootClamped);
                         uv[i] = new Vector2(uv[i].x + (vp[i].y * ctrlOffsetRootClamped) / 4f, uv[i].y);
                     }
-
-                    // Colors
-                    if (vp[i].x > 0f)
-                    {
-                        // cl[i] = GetVertexColor(0);
-                        uv2[i] = GetVertexUV2(sharedMaterialST);
-                    }
-                    else
-                    {
-                        // cl[i] = GetVertexColor(1);
-                        uv2[i] = GetVertexUV2(sharedMaterialSB);
-                    }
                 }
                 meshFilter.mesh.vertices = vp;
                 meshFilter.mesh.uv = uv;
-                meshFilter.mesh.uv2 = uv2;
-                // meshFilter.mesh.colors = cl;
                 meshFilter.mesh.RecalculateBounds();
                 if (HighLogic.CurrentGame.Parameters.CustomParams<WPDebug>().logUpdateGeometry)
                 {
@@ -2133,15 +2066,12 @@ namespace B9PW_Technicolor
             }
 
             if (surfaceUpDownMode != modeCached)
-            {
-                //Debug.Log("[B9PW_PBR] Surface should be adjusted to " + currentVariant + " variant!");
                 return true;
-            }
             
             return false;
         }
 
-        public void DetermineUpSurface()
+        public void DetermineUpSurface()    // Same method used by Procedural Wings (hence limited in the same way)
         {
             if (!isCtrlSrf)
             {
@@ -2248,12 +2178,11 @@ namespace B9PW_Technicolor
         {
             if (!isCtrlSrf)
             {
-                //meshFilterWingSurface   = CheckMeshFilter(meshFilterWingSurface, "surface");
+                meshFilterWingSection = CheckMeshFilter(meshFilterWingSection, "section");
                 meshFilterWingSurface1  = CheckMeshFilter(meshFilterWingSurface1, "surface1");
                 meshFilterWingSurface2  = CheckMeshFilter(meshFilterWingSurface2, "surface2");
                 meshFilterWingSurface1T = CheckMeshFilter(meshFilterWingSurface1T, "surface1Tiled");
                 meshFilterWingSurface2T = CheckMeshFilter(meshFilterWingSurface2T, "surface2Tiled");
-                meshFilterWingSection = CheckMeshFilter(meshFilterWingSection, "section");
                 for (int i = 0; i < meshTypeCountEdgeWing; ++i)
                 {
                     MeshFilter meshFilterWingEdgeTrailing = CheckMeshFilter("edge_trailing_type" + i);
@@ -2266,7 +2195,6 @@ namespace B9PW_Technicolor
             else
             {
                 meshFilterCtrlFrame = CheckMeshFilter(meshFilterCtrlFrame, "frame");
-                //meshFilterCtrlSurface   = CheckMeshFilter(meshFilterCtrlSurface, "surface");
                 meshFilterCtrlSurface1  = CheckMeshFilter(meshFilterCtrlSurface1, "surface1");
                 meshFilterCtrlSurface2  = CheckMeshFilter(meshFilterCtrlSurface2, "surface2");
                 meshFilterCtrlSurface1T = CheckMeshFilter(meshFilterCtrlSurface1T, "surface1Tiled");
@@ -2334,22 +2262,20 @@ namespace B9PW_Technicolor
                 if (isCtrlSrf)
                 {
                     DebugLogWithID("ReportOnMeshReferences", "Control surface reference length check" + " | Edge: " + meshReferenceCtrlFrame.vp.Length);
-                                        //+ " | Surface: " + meshReferenceCtrlSurface.vp.Length);
                     DebugLogWithID("ReportOnMeshReferences", "Control surface reference length check"
-                                        + " | Surface1: " + meshReferenceCtrlSurface1.vp.Length
-                                        + " | Surface2: " + meshReferenceCtrlSurface2.vp.Length
-                                        + " | Surface1T: " + meshReferenceCtrlSurface1T.vp.Length
-                                        + " | Surface2T: " + meshReferenceCtrlSurface2T.vp.Length);
+                                        + " | Srf1: " + meshReferenceCtrlSurface1.vp.Length
+                                        + " | Srf2: " + meshReferenceCtrlSurface2.vp.Length
+                                        + " | Srf1Tiled: " + meshReferenceCtrlSurface1T.vp.Length
+                                        + " | Srf2Tiled: " + meshReferenceCtrlSurface2T.vp.Length);
                 }
                 else
                 {
                     DebugLogWithID("ReportOnMeshReferences", "Wing reference length check" + " | Section: " + meshReferenceWingSection.vp.Length);
-                                        //+ " | Surface: " + meshReferenceWingSurface.vp.Length);
                     DebugLogWithID("ReportOnMeshReferences", "Wing reference length check"
-                                        + " | Surface1: " + meshReferenceWingSurface1.vp.Length
-                                        + " | Surface2: " + meshReferenceWingSurface2.vp.Length
-                                        + " | Surface1T: " + meshReferenceWingSurface1T.vp.Length
-                                        + " | Surface2T: " + meshReferenceWingSurface2T.vp.Length);
+                                        + " | Srf1: " + meshReferenceWingSurface1.vp.Length
+                                        + " | Srf2: " + meshReferenceWingSurface2.vp.Length
+                                        + " | Srf1Tiled: " + meshReferenceWingSurface1T.vp.Length
+                                        + " | Srf2Tiled: " + meshReferenceWingSurface2T.vp.Length);
                 }
             }
         }
@@ -2364,7 +2290,6 @@ namespace B9PW_Technicolor
             if (!isCtrlSrf)
             {
                 meshReferenceWingSection    = FillMeshRefererence(meshFilterWingSection);
-                //meshReferenceWingSurface    = FillMeshRefererence(meshFilterWingSurface);
                 meshReferenceWingSurface1   = FillMeshRefererence(meshFilterWingSurface1);
                 meshReferenceWingSurface2   = FillMeshRefererence(meshFilterWingSurface2);
                 meshReferenceWingSurface1T  = FillMeshRefererence(meshFilterWingSurface1T);
@@ -2378,7 +2303,6 @@ namespace B9PW_Technicolor
             else
             {
                 meshReferenceCtrlFrame      = FillMeshRefererence(meshFilterCtrlFrame);
-                //meshReferenceCtrlSurface    = FillMeshRefererence(meshFilterCtrlSurface);
                 meshReferenceCtrlSurface1   = FillMeshRefererence(meshFilterCtrlSurface1);
                 meshReferenceCtrlSurface2   = FillMeshRefererence(meshFilterCtrlSurface2);
                 meshReferenceCtrlSurface1T  = FillMeshRefererence(meshFilterCtrlSurface1T);
@@ -4725,6 +4649,7 @@ namespace B9PW_Technicolor
             }
             return default;
         }
+
         #region Dump state
 
         public void DumpState()
@@ -4762,5 +4687,6 @@ namespace B9PW_Technicolor
             Debug.Log(report);
         }
         #endregion
+
     }
 }
