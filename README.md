@@ -30,7 +30,7 @@ This uses a very slighly modified version of the original B9-PW plugin in order 
 Also included are versions of the B9-PW wing models with the surface meshes duplicated, as switching between bare/tiled variants is simpler when there are separate meshes with each material (texture).
 When in-game, one can simply active/deactivate them.
 
-**Credit of the models and code goes to all contributors to the B9ProceduralWings-Fork mod, which is currently mantained by linuxgurugamer.**
+**Credit of the models and code goes to all contributors to the B9ProceduralWings-Fork mod, which is currently maintained by linuxgurugamer.**
 
 # 
 
