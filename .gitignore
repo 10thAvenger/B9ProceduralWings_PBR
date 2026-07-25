@@ -4,10 +4,10 @@ obj/
 *.user
 *.suo
 *.cache
+*.zip
 
 Assets/
 Plugins/
 *.dds
 *.mu
 *.dll
-.craft
