@@ -8,6 +8,7 @@ obj/
 
 Assets/
 Plugins/
+Releases/
 *.dds
 *.mu
 *.dll

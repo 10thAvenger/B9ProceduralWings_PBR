@@ -1836,7 +1836,8 @@ namespace B9PW_Technicolor
                             // Trailing edge (UV adjustment, has to be the last as it's based on cumulative vertex positions)
                             if (nm[i] != new Vector3(0f, 1f, 0f) && nm[i] != new Vector3(0f, 0f, 1f) && nm[i] != new Vector3(0f, 0f, -1f) && uv[i].y < 0.3f)
                             {
-                                uv[i] = vp[i].z < 0f ? new Vector2(vp[i].z, uv[i].y) : new Vector2(vp[i].z, uv[i].y);
+                                //uv[i] = vp[i].z < 0f ? new Vector2(vp[i].z, uv[i].y) : new Vector2(vp[i].z, uv[i].y);     // <--- why???
+                                uv[i] = new Vector2(- vp[i].z, uv[i].y);
                             }
                         }
 
