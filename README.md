@@ -1,4 +1,4 @@
-<!-- B9ProceduralWings_PBR v1.0 -->
+<!-- B9ProceduralWings_PBR v1.0.1 -->
 
 # Presenting B9ProceduralWings PBR
 RestockPBR support for B9ProceduralWings
